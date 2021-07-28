@@ -1,0 +1,55 @@
+DBMS:
+oracle
+
+Error:
+java.sql.SQLSyntaxErrorException: ORA-00904: "CDMTABLE"."VALUE_AS_NUMBER" : identificateur non valide
+
+
+SQL:
+/*********
+CONCEPT_RECORD_COMPLETENESS
+number of 0s / total number of records 
+
+Parameters used in this template:
+cdmDatabaseSchema = OMOP
+cdmTableName = DOSE_ERA
+cdmFieldName = UNIT_CONCEPT_ID
+
+**********/
+
+SELECT num_violated_rows, CASE WHEN denominator.num_rows = 0 THEN 0 ELSE 1.0*num_violated_rows/denominator.num_rows END  AS pct_violated_rows, 
+  denominator.num_rows as num_denominator_rows
+FROM (SELECT COUNT(violated_rows.violating_field) AS num_violated_rows
+	FROM (SELECT 'DOSE_ERA.UNIT_CONCEPT_ID' AS violating_field, cdmTable.* 
+		FROM OMOP.DOSE_ERA cdmTable
+		
+		  WHERE cdmTable.UNIT_CONCEPT_ID = 0 AND cdmTable.value_as_number IS NOT NULL
+	 ) violated_rows
+ ) violated_row_count,
+(SELECT COUNT(*) AS num_rows
+	FROM OMOP.DOSE_ERA cdmTable
+	
+	  WHERE cdmTable.value_as_number IS NOT NULL
+ ) denominator
+ ;
+
+
+R version:
+R version 4.0.3 (2020-10-10)
+
+Platform:
+x86_64-pc-linux-gnu
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- magrittr (2.0.1)
+- DataQualityDashboard (1.0.0)
+- DatabaseConnector (4.0.0)

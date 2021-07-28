@@ -1,0 +1,52 @@
+DBMS:
+oracle
+
+Error:
+java.sql.SQLSyntaxErrorException: ORA-00932: types de données incohérents ; attendu : - ; obtenu : CLOB
+
+
+SQL:
+
+/*********
+FIELD LEVEL check:
+CDM_FIELD - verify the field exists
+
+Parameters used in this template:
+cdmDatabaseSchema = OMOP
+cdmTableName = DRUG_EXPOSURE
+cdmFieldName = SIG
+
+**********/
+
+
+SELECT num_violated_rows, CASE WHEN denominator.num_rows = 0 THEN 0 ELSE 1.0*num_violated_rows/denominator.num_rows END AS pct_violated_rows, 
+  denominator.num_rows as num_denominator_rows
+FROM (SELECT num_violated_rows FROM (SELECT  CASE when  COUNT(SIG) = 0 then 0
+      else 0
+     END as num_violated_rows
+    FROM OMOP.DRUG_EXPOSURE cdmTable
+    GROUP BY 1) violated_rows
+ ) violated_row_count,
+(SELECT 1 as num_rows
+ FROM DUAL) denominator
+ ;
+
+R version:
+R version 4.0.3 (2020-10-10)
+
+Platform:
+x86_64-pc-linux-gnu
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- magrittr (2.0.1)
+- DataQualityDashboard (1.0.0)
+- DatabaseConnector (4.0.0)
