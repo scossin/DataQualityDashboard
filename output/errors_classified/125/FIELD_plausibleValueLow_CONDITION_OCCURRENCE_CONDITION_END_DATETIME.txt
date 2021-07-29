@@ -1,0 +1,59 @@
+DBMS:
+oracle
+
+Error:
+java.sql.SQLDataException: ORA-01861: le littéral ne concorde pas avec le format chaîne de caractères
+
+
+SQL:
+
+/*********
+PLAUSIBLE_VALUE_LOW
+get number of records and the proportion to total number of eligible records that fall below this threshold
+
+Parameters used in this template:
+cdmDatabaseSchema = OMOP
+cdmTableName = CONDITION_OCCURRENCE
+cdmFieldName = CONDITION_END_DATETIME
+plausibleValueLow = '1950-01-01'
+
+**********/
+
+SELECT num_violated_rows, CASE WHEN denominator.num_rows = 0 THEN 0 ELSE 1.0*num_violated_rows/denominator.num_rows END  AS pct_violated_rows, 
+  denominator.num_rows as num_denominator_rows
+FROM (SELECT COUNT(violated_rows.violating_field) AS num_violated_rows
+	FROM (SELECT 'CONDITION_OCCURRENCE.CONDITION_END_DATETIME' AS violating_field, cdmTable.*
+		FROM OMOP.CONDITION_OCCURRENCE cdmTable
+		
+    
+        WHERE cast(cdmTable.CONDITION_END_DATETIME as date) < cast('1950-01-01' as date)
+    
+	 ) violated_rows
+ ) violated_row_count,
+(SELECT COUNT(*) AS num_rows
+	FROM OMOP.CONDITION_OCCURRENCE cdmTable
+	
+	  WHERE CONDITION_END_DATETIME is not null
+ ) denominator
+ ;
+
+
+R version:
+R version 4.0.3 (2020-10-10)
+
+Platform:
+x86_64-pc-linux-gnu
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- magrittr (2.0.1)
+- DataQualityDashboard (1.0.0)
+- DatabaseConnector (4.0.0)

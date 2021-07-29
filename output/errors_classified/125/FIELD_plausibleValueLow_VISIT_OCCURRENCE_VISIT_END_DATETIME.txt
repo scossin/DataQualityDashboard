@@ -2,34 +2,38 @@ DBMS:
 oracle
 
 Error:
-java.sql.SQLSyntaxErrorException: ORA-00904: "CDMTABLE"."VALUE_AS_NUMBER" : identificateur non valide
+java.sql.SQLDataException: ORA-01861: le littéral ne concorde pas avec le format chaîne de caractères
 
 
 SQL:
+
 /*********
-CONCEPT_RECORD_COMPLETENESS
-number of 0s / total number of records 
+PLAUSIBLE_VALUE_LOW
+get number of records and the proportion to total number of eligible records that fall below this threshold
 
 Parameters used in this template:
 cdmDatabaseSchema = OMOP
-cdmTableName = SPECIMEN
-cdmFieldName = UNIT_CONCEPT_ID
+cdmTableName = VISIT_OCCURRENCE
+cdmFieldName = VISIT_END_DATETIME
+plausibleValueLow = '1950-01-01'
 
 **********/
 
 SELECT num_violated_rows, CASE WHEN denominator.num_rows = 0 THEN 0 ELSE 1.0*num_violated_rows/denominator.num_rows END  AS pct_violated_rows, 
   denominator.num_rows as num_denominator_rows
 FROM (SELECT COUNT(violated_rows.violating_field) AS num_violated_rows
-	FROM (SELECT 'SPECIMEN.UNIT_CONCEPT_ID' AS violating_field, cdmTable.* 
-		FROM OMOP.SPECIMEN cdmTable
+	FROM (SELECT 'VISIT_OCCURRENCE.VISIT_END_DATETIME' AS violating_field, cdmTable.*
+		FROM OMOP.VISIT_OCCURRENCE cdmTable
 		
-		  WHERE cdmTable.UNIT_CONCEPT_ID = 0 AND cdmTable.value_as_number IS NOT NULL
+    
+        WHERE cast(cdmTable.VISIT_END_DATETIME as date) < cast('1950-01-01' as date)
+    
 	 ) violated_rows
  ) violated_row_count,
 (SELECT COUNT(*) AS num_rows
-	FROM OMOP.SPECIMEN cdmTable
+	FROM OMOP.VISIT_OCCURRENCE cdmTable
 	
-	  WHERE cdmTable.value_as_number IS NOT NULL
+	  WHERE VISIT_END_DATETIME is not null
  ) denominator
  ;
 

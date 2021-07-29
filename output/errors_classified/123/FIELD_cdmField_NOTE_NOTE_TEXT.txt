@@ -2,7 +2,7 @@ DBMS:
 oracle
 
 Error:
-java.sql.SQLSyntaxErrorException: ORA-00904: "OFFSET" : identificateur non valide
+java.sql.SQLSyntaxErrorException: ORA-00932: types de données incohérents ; attendu : - ; obtenu : CLOB
 
 
 SQL:
@@ -13,18 +13,18 @@ CDM_FIELD - verify the field exists
 
 Parameters used in this template:
 cdmDatabaseSchema = OMOP
-cdmTableName = NOTE_NLP
-cdmFieldName = OFFSET
+cdmTableName = NOTE
+cdmFieldName = NOTE_TEXT
 
 **********/
 
 
 SELECT num_violated_rows, CASE WHEN denominator.num_rows = 0 THEN 0 ELSE 1.0*num_violated_rows/denominator.num_rows END AS pct_violated_rows, 
   denominator.num_rows as num_denominator_rows
-FROM (SELECT num_violated_rows FROM (SELECT  CASE when  COUNT(OFFSET) = 0 then 0
+FROM (SELECT num_violated_rows FROM (SELECT  CASE when  COUNT(NOTE_TEXT) = 0 then 0
       else 0
      END as num_violated_rows
-    FROM OMOP.NOTE_NLP cdmTable
+    FROM OMOP.NOTE cdmTable
     GROUP BY 1) violated_rows
  ) violated_row_count,
 (SELECT 1 as num_rows
