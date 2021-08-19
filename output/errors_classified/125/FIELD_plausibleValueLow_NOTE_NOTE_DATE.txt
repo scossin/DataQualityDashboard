@@ -55,5 +55,3 @@ Attached base packages:
 
 Other attached packages:
 - magrittr (2.0.1)
-- DataQualityDashboard (1.0.0)
-- DatabaseConnector (4.0.0)
